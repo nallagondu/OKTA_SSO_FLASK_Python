@@ -1,0 +1,116 @@
+Main folder folder1<
+>App
+    >├── app.py
+    ├── config.py
+    ├── __pycache__
+    │   ├── app.cpython-39.pyc
+    │   ├── config.cpython-39.pyc
+    │   ├── reverse_proxy.cpython-39.pyc
+    │   └── wsgi.cpython-39.pyc
+    ├── requirement1.txt
+    ├── requirements.txt
+    ├── reverse_proxy.py
+    └── wsgi.py
+
+
+>  Certs
+    └── prom_ca_chain.pem   
+>Venv  
+>Wheels
+  >├── Authlib-1.3.1-py2.py3-none-any.whl
+├── blinker-1.9.0-py3-none-any.whl
+├── certifi-2024.7.4-py3-none-any.whl
+├── cffi-1.17.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+├── charset_normalizer-3.3.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+├── click-8.1.7-py3-none-any.whl
+├── colorama-0.4.6-py2.py3-none-any.whl
+├── cryptography-42.0.8-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+├── cryptography-45.0.7-cp37-abi3-win_amd64.whl
+├── flask-3.0.3-py3-none-any.whl
+├── idna-3.7-py3-none-any.whl
+├── importlib_metadata-7.1.0-py3-none-any.whl
+├── itsdangerous-2.2.0-py3-none-any.whl
+├── jinja2-3.1.4-py3-none-any.whl
+├── MarkupSafe-3.0.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+├── pycparser-2.22-py3-none-any.whl
+├── pycparser-2.23-py3-none-any.whl
+├── python_dotenv-1.0.1-py3-none-any.whl
+├── requests-2.31.0-py3-none-any.whl
+├── urllib3-1.26.18-py2.py3-none-any.whl
+├── waitress-3.0.0-py3-none-any.whl
+├── werkzeug-3.0.3-py3-none-any.whl
+└── zipp-3.19.2-py3-none-any.whl
+
+Requirement : OKTA Meta data file 
+            redirection URl form OKTA
+
+
+Server  level Configuration steps : 
+
+ mkdir -p /apps/prom-oidc/{app,venv,certs}
+
+python3 -m venv /apps/prom-oidc/venv
+
+Vi /etc/nginx/conf.d/prom-oidc.conf
+
+
+sudo useradd -r -s /sbin/nologin promoidc || true
+
+sudo -u svc_alrtmgr bash -lc '
+
+To check the  services : 
+
+sudo yum install nginx
+
+systemctl --user enable --now prom-oidc.service
+systemctl --user status --now prom-oidc.service
+systemctl --user stop prom-oidc.service
+
+sudo nginx -t && sudo systemctl reload nginx
+
+
+ to stop  :  
+
+pkill -f 'python -m waitress'
+
+
+This will give to restart the flask freamwork in app01 : 
+
+
+sudo yum install -y python3 python3-pip
+
+Create Virtual Environment :
+python3 -m venv /apps/prom-oidc/venv
+
+python3 -m venv /apps/prom-oidc/venv || true
+mkdir -p ~/.config/pip
+touch  ~/.config/pip/pip.conf
+  vi ~/.config/pip/pip.confhi	        
+[global]
+index-url = https://pypi.org/simple
+
+ pip install -r app/requirements.txt --index-url https://pypi.org/simple
+
+export PIP_NO_INDEX=1
+
+/apps/prom-oidc/venv/bin/python -m ensurepip --upgrade
+/apps/prom-oidc/venv/bin/pip install -r /apps/prom-oidc/app/requirements.txt
+pip install --no-index --find-links wheels -r /apps/prom-oidc/app/requirements.txt
+
+
+cd /apps/prom-oidc/app
+source /apps/prom-oidc/venv/bin/activate
+nohup python -m waitress --listen=127.0.0.1:8443 wsgi:app > /home/svc_nppromt/prom_oidc.log 2>&1 &
+Or his	
+ python -m waitress --listen=127.0.0.1:8444 wsgi:app
+
+ss -lntp | egrep '8444'
+
+After starting the service :
+Validate the below proxy responding or not  -
+
+curl -k https://pmsnlpromt01.amer.ailivecode.com/healthz
+curl -k https://pmsnlpromt01.amer.ailivecode.com/debug/upstream
+curl -I https://pmsnlpromt01.amer.ailivecode.com/graph
+
+app01 OIDC Architecture (Flask + Okta + Prom
